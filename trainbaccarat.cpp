@@ -330,90 +330,95 @@ int sumofarray(int *myarray, int size, int type){
 }
 
 int main(){
-    ifstream deck_file("deck_file1");
+    omp_set_num_threads(8);
+    ifstream arr_deck_file[8];
+    arr_deck_file[0].open("deck_file1");
+    arr_deck_file[1].open("deck_file2");
+    arr_deck_file[2].open("deck_file3");
+    arr_deck_file[3].open("deck_file4");
+    arr_deck_file[4].open("deck_file5");
+    arr_deck_file[5].open("deck_file6");
+    arr_deck_file[6].open("deck_file7");
+    arr_deck_file[7].open("deck_file8");
 
-    ofstream testBanker;
-    testBanker.open("testingdataBanker.txt", ios::app);
-
-    ofstream testPlayer;
-    testPlayer.open("testingdataPlayer.txt", ios::app);
-
-    ofstream testTie;
-    testTie.open("testingdataTie.txt", ios::app);
-
-    srand(time(NULL));
-
-    //shoe consists of 8 decks that have been shuffled through a python script
+    ofstream arr_train[8];
+    arr_train[0].open("trainingdata1.txt", ios::app);
+    arr_train[1].open("trainingdata2.txt", ios::app);
+    arr_train[2].open("trainingdata3.txt", ios::app);
+    arr_train[3].open("trainingdata4.txt", ios::app);
+    arr_train[4].open("trainingdata5.txt", ios::app);
+    arr_train[5].open("trainingdata6.txt", ios::app);
+    arr_train[6].open("trainingdata7.txt", ios::app);
+    arr_train[7].open("trainingdata8.txt", ios::app);
+    // ofstream testBanker;
+    // testBanker.open("testingdataBanker.txt", ios::app);
     //
-    // int *shoe = new int[128];
-    int *cards_in_deck = new int[10];
-    for(int i = 1; i <= 9; i++){
-      cards_in_deck[i] = 32;
-    }
-    cards_in_deck[0] = 128;
-    int *shoe = new int[416];
-    // int *shoe = new int[416];
-    //the card that signifies the end of the shoe
-    int red_card;
-
-    //this will be the index of where the top of the deck is, instead of constantly shifting the array.
-    int top_of_deck;
-
-    //Shoe is set with correct deck
-
-
-    // int bank5[5] = {0};
-    // int bank10[10] = {0};
-    // int bank20[20] = {0};
-    // int bank30[30] = {0};
+    // ofstream testPlayer;
+    // testPlayer.open("testingdataPlayer.txt", ios::app);
     //
-    // int streak = 0;
-    //
-    int card_count[10] = {0};
-    //
-    // int last_winner = 1;
-    //
-    int num_banker_cards_drawn = 0;
-    int num_player_cards_drawn = 0;
-    int banker_cards[3];
-    int player_cards[3];
+    // ofstream testTie;
+    // testTie.open("testingdataTie.txt", ios::app);
+    #pragma omp parallel for default(none) shared(arr_train, arr_deck_file)
+    for(int loop = 0; loop < 8; loop++){
+      srand(time(NULL));
 
 
-    //Get the shoe information from the deck file
-    for(int i = 0; i < 416; i++){
-        deck_file >> shoe[i];
-    }
+      int *cards_in_deck = new int[10];
+      for(int i = 1; i <= 9; i++){
+        cards_in_deck[i] = 32;
+      }
+      cards_in_deck[0] = 128;
+      int *shoe = new int[416];
 
-    //Randomize when the red card will occur it should occur around one deck from the end of the game
-    red_card = rand()%52+52;
+      int red_card;
+      int top_of_deck;
+      int card_count[10] = {0};
 
-    //The way casinos work is that they reveal the very first card and burn that many cards AND the card drawn
-    top_of_deck = shoe[0] + 1;
-    cards_in_deck[shoe[0]]--;
-    // int count = 0;
-
-    while(top_of_deck < 416-red_card){
-
-
-        int result = playhand(top_of_deck, shoe, card_count, num_player_cards_drawn, num_banker_cards_drawn, player_cards, banker_cards);
-        for(int i = 0; i < 10; i++){
-          cout << cards_in_deck[i] << " ";
-        }
-        cout << result << endl;
-
-        for(int i = 0; i < num_player_cards_drawn; i++){
-          cards_in_deck[player_cards[i]]--;
-        }
-        for(int i = 0; i < num_banker_cards_drawn; i++){
-          cards_in_deck[banker_cards[i]]--;
-        }
-        // count++;
-    }
+      int num_banker_cards_drawn = 0;
+      int num_player_cards_drawn = 0;
+      int banker_cards[3];
+      int player_cards[3];
 
 
+      //Get the shoe information from the deck file
+      for(int i = 0; i < 416; i++){
+          arr_deck_file[loop] >> shoe[i];
+      }
+
+      //Randomize when the red card will occur it should occur around one deck from the end of the game
+      red_card = rand()%52+52;
+
+      //The way casinos work is that they reveal the very first card and burn that many cards AND the card drawn
+      if(shoe[0] == 0){
+        top_of_deck = 11;
+      }
+      else{
+        top_of_deck = shoe[0] + 1;
+      }
+      cards_in_deck[shoe[0]]--;
+      // int count = 0;
+
+      while(top_of_deck < 416-red_card){
 
 
+          int result = playhand(top_of_deck, shoe, card_count, num_player_cards_drawn, num_banker_cards_drawn, player_cards, banker_cards);
+          for(int i = 0; i < 10; i++){
+            arr_train[loop] << cards_in_deck[i] << " ";
+          }
+          arr_train[loop] << result << endl;
 
-
-    return 0;
+          for(int i = 0; i < num_player_cards_drawn; i++){
+            arr_train[loop] << player_cards[i] << " ";
+            cards_in_deck[player_cards[i]]--;
+          }
+          arr_train[loop] << "||";
+          for(int i = 0; i < num_banker_cards_drawn; i++){
+            arr_train[loop] << banker_cards[i] << " ";
+            cards_in_deck[banker_cards[i]]--;
+          }
+          arr_train[loop] << endl;
+          // count++;
+      }
+  }
+  return 0;
 }

@@ -10,8 +10,9 @@ deck_file7 = open("deck_file7", "w")
 deck_file8 = open("deck_file8", "w")
 
 # suit = [1 ,2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+suit = [0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 # suit = [1, 2, 3, 4]
-suit = [5, 6, 7, 8, 9, 10, 10, 10, 10]
+# suit = [5, 6, 7, 8, 9, 10, 10, 10, 10]
 
 deck = suit + suit + suit + suit
 
