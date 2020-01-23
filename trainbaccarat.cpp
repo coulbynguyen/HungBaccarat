@@ -124,8 +124,6 @@ int playhand(int &top_of_deck, int shoe[], int card_count[], int &num_player_car
     banker_total += shoe[top_of_deck];
     banker_cards[num_banker_cards_drawn] = shoe[top_of_deck];
     num_banker_cards_drawn++;
-    banker_cards[num_banker_cards_drawn] = shoe[top_of_deck];
-    num_banker_cards_drawn++;
     getcount(shoe[top_of_deck], card_count);
     top_of_deck++;
 
@@ -136,7 +134,9 @@ int playhand(int &top_of_deck, int shoe[], int card_count[], int &num_player_car
     getcount(shoe[top_of_deck], card_count);
     top_of_deck++;
 
-    banker_total += shoe[top_of_deck+3];
+    banker_total += shoe[top_of_deck];
+    banker_cards[num_banker_cards_drawn] = shoe[top_of_deck];
+    num_banker_cards_drawn++;
     getcount(shoe[top_of_deck], card_count);
     top_of_deck++;
 
